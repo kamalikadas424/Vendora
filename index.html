@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vendora</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f5f5;
+margin:0;
+}
+
+header{
+background:#111;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+.container{
+padding:20px;
+}
+
+button{
+padding:10px;
+margin:5px;
+cursor:pointer;
+}
+
+input,textarea{
+width:100%;
+padding:8px;
+margin:5px 0;
+}
+
+.card{
+background:white;
+padding:15px;
+margin:10px;
+border-radius:10px;
+box-shadow:0 0 5px gray;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Vendora 🇮🇳</h1>
+<p>Connecting Indian Buyers & Sellers</p>
+</header>
+
+<div class="container">
+
+<h2>Select Login</h2>
+
+<button onclick="show('adminLogin')">Admin Login</button>
+<button onclick="show('sellerLogin')">Seller Login</button>
+<button onclick="show('customerLogin')">Customer Login</button>
+
+</div>
+
+
+<!-- ADMIN LOGIN -->
+
+<div id="adminLogin" class="container hidden">
+
+<h2>Admin Login</h2>
+
+<input id="adminName" placeholder="Name">
+<input id="adminEmail" placeholder="Email">
+<input id="adminPhone" placeholder="Phone">
+
+<button onclick="adminDashboard()">Login</button>
+
+</div>
+
+
+<!-- SELLER LOGIN -->
+
+<div id="sellerLogin" class="container hidden">
+
+<h2>Seller Login</h2>
+
+<input id="sellerName" placeholder="Name">
+<input id="sellerEmail" placeholder="Email">
+<input id="sellerPhone" placeholder="Phone">
+
+<button onclick="sellerDashboard()">Login</button>
+
+</div>
+
+
+<!-- CUSTOMER LOGIN -->
+
+<div id="customerLogin" class="container hidden">
+
+<h2>Customer Login</h2>
+
+<input id="customerName" placeholder="Name">
+<input id="customerEmail" placeholder="Email">
+<input id="customerPhone" placeholder="Phone">
+
+<button onclick="customerDashboard()">Login</button>
+
+</div>
+
+
+
+<!-- SELLER DASHBOARD -->
+
+<div id="sellerDash" class="container hidden">
+
+<h2>Seller Dashboard</h2>
+
+<h3>Upload Product</h3>
+
+<input id="pname" placeholder="Product Name">
+
+<textarea id="pdesc" placeholder="Product Description"></textarea>
+
+<input id="pprice" placeholder="Product Price">
+
+<input id="pdelivery" placeholder="Delivery Charge">
+
+<button onclick="uploadProduct()">Upload Product</button>
+
+</div>
+
+
+
+<!-- ADMIN DASHBOARD -->
+
+<div id="adminDash" class="container hidden">
+
+<h2>Admin Dashboard</h2>
+
+<h3>All Products</h3>
+
+<div id="adminProducts"></div>
+
+</div>
+
+
+
+<!-- CUSTOMER DASHBOARD -->
+
+<div id="customerDash" class="container hidden">
+
+<h2>Customer Dashboard</h2>
+
+<input id="search" placeholder="Search Product" onkeyup="searchProduct()">
+
+<div id="products"></div>
+
+<h3>Wishlist</h3>
+
+<div id="wishlist"></div>
+
+<h3>Orders</h3>
+
+<div id="orders"></div>
+
+</div>
+
+
+<script>
+
+let products=[]
+let orders=[]
+let wishlist=[]
+
+function show(id){
+
+document.getElementById("adminLogin").classList.add("hidden")
+document.getElementById("sellerLogin").classList.add("hidden")
+document.getElementById("customerLogin").classList.add("hidden")
+
+document.getElementById(id).classList.remove("hidden")
+
+}
+
+
+function sellerDashboard(){
+
+document.getElementById("sellerDash").classList.remove("hidden")
+
+}
+
+
+function adminDashboard(){
+
+document.getElementById("adminDash").classList.remove("hidden")
+
+displayAdminProducts()
+
+}
+
+
+function customerDashboard(){
+
+document.getElementById("customerDash").classList.remove("hidden")
+
+displayProducts()
+
+}
+
+
+
+function uploadProduct(){
+
+let name=document.getElementById("pname").value
+let desc=document.getElementById("pdesc").value
+let price=parseInt(document.getElementById("pprice").value)
+let delivery=parseInt(document.getElementById("pdelivery").value)
+
+let product={
+
+name:name,
+desc:desc,
+price:price,
+delivery:delivery,
+commission:0
+
+}
+
+products.push(product)
+
+alert("Product Uploaded!")
+
+displayProducts()
+displayAdminProducts()
+
+}
+
+
+
+function displayProducts(){
+
+let html=""
+
+products.forEach((p,i)=>{
+
+let final=p.price+p.delivery+p.commission
+
+html+=`
+
+<div class="card">
+
+<h3>${p.name}</h3>
+
+<p>${p.desc}</p>
+
+<p>Price ₹${final}</p>
+
+<button onclick="buy(${i})">Buy Now</button>
+
+<button onclick="addWishlist(${i})">Wishlist</button>
+
+<a href="https://wa.me/">Contact Seller</a>
+
+</div>
+
+`
+
+})
+
+document.getElementById("products").innerHTML=html
+
+}
+
+
+
+function displayAdminProducts(){
+
+let html=""
+
+products.forEach((p,i)=>{
+
+html+=`
+
+<div class="card">
+
+<h3>${p.name}</h3>
+
+<p>Seller Price ₹${p.price}</p>
+
+<p>Delivery ₹${p.delivery}</p>
+
+<input id="comm${i}" placeholder="Commission">
+
+<button onclick="addCommission(${i})">Add Commission</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("adminProducts").innerHTML=html
+
+}
+
+
+
+function addCommission(i){
+
+let c=parseInt(document.getElementById("comm"+i).value)
+
+products[i].commission=c
+
+alert("Commission Added")
+
+displayProducts()
+
+}
+
+
+
+function buy(i){
+
+orders.push(products[i])
+
+alert("Order Placed!")
+
+displayOrders()
+
+}
+
+
+
+function displayOrders(){
+
+let html=""
+
+orders.forEach((o,i)=>{
+
+let final=o.price+o.delivery+o.commission
+
+html+=`
+
+<div class="card">
+
+<h3>${o.name}</h3>
+
+<p>Price ₹${final}</p>
+
+<button onclick="cancelOrder(${i})">Cancel</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("orders").innerHTML=html
+
+}
+
+
+
+function cancelOrder(i){
+
+orders.splice(i,1)
+
+displayOrders()
+
+alert("Order Cancelled")
+
+}
+
+
+
+function addWishlist(i){
+
+wishlist.push(products[i])
+
+displayWishlist()
+
+}
+
+
+
+function displayWishlist(){
+
+let html=""
+
+wishlist.forEach(w=>{
+
+html+=`
+
+<div class="card">
+
+<h3>${w.name}</h3>
+
+</div>
+
+`
+
+})
+
+document.getElementById("wishlist").innerHTML=html
+
+}
+
+
+
+function searchProduct(){
+
+let search=document.getElementById("search").value.toLowerCase()
+
+let filtered=products.filter(p=>p.name.toLowerCase().includes(search))
+
+let html=""
+
+filtered.forEach((p,i)=>{
+
+let final=p.price+p.delivery+p.commission
+
+html+=`
+
+<div class="card">
+
+<h3>${p.name}</h3>
+
+<p>₹${final}</p>
+
+<button onclick="buy(${i})">Buy Now</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("products").innerHTML=html
+
+}
+
+</script>
+
+</body>
+
+</html>
